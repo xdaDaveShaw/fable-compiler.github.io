@@ -104,8 +104,10 @@ let renderBlog() =
   let pageTitle, header, subheader = "Fable Blog", "Blog", "Read about latest Fable news"
   renderMarkdownFrom pageTitle Navbar.Blog header subheader "blog"
     (Node.path.join(Paths.BlogDir, "index.md")) (Node.path.join(Paths.DeployDir, "blog", "index.html"))
-  let blogFiles = Node.fs.readdirSync(!^Paths.BlogDir)
-  for blog in blogFiles |> Seq.filter (fun x -> x.EndsWith(".md")) do
+  let blogFiles = 
+    Node.fs.readdirSync(!^Paths.BlogDir)
+    |> Seq.filter (fun x -> x.EndsWith(".md"))
+  for blog in blogFiles do
     let text = Node.fs.readFileSync(Node.path.join(Paths.BlogDir, blog)).toString()
     let m = reg.Match(text)
     let header, subheader, text =
@@ -115,6 +117,7 @@ let renderBlog() =
     let targetPath = Node.path.join(Paths.DeployDir, "blog", blog.Replace(".md", ".html"))
     renderMarkdown pageTitle Navbar.Blog header subheader "blog" targetPath text
   printfn "Blog generated"
+
 let renderHomePage() =
   render
     { Title = "Fable: JavaScript you can be proud of!"
@@ -126,6 +129,7 @@ let renderHomePage() =
 // Run
 IO.copy Paths.PublicDir Paths.DeployDir
 renderHomePage()
+Feed.renderFeed()
 renderBlog()
 renderDocs()
 renderFaq()
